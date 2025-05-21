@@ -1,0 +1,7 @@
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.log
+crash.log
+.terraform\providers\registry.terraform.io
+.terraform\providers\registry.terraform.io\hashicorp\aws\5.98.0\windows_amd64\terraform-provider-aws_v5.98.0_x5.exe
