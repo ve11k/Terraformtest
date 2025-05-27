@@ -2,8 +2,14 @@ resource "aws_sns_topic" "alerts" {
   name = "ec2-alerts-topic"
 }
 
+locals {
+  instance_ids = [
+    aws_instance.web_test.id,
+    aws_instance.web_test_private.id
+  ]
+}
 resource "aws_cloudwatch_metric_alarm" "alarm_public_cpu" {
-  for_each = toset(aws_instance.web_test.id)
+  for_each = toset(local.instance_ids)
 
   alarm_name          = "HighCPU-${each.key}"
   comparison_operator = "GreaterThanThreshold"
@@ -20,7 +26,7 @@ resource "aws_cloudwatch_metric_alarm" "alarm_public_cpu" {
   alarm_actions = [aws_sns_topic.alerts.arn]
 }
 resource "aws_cloudwatch_metric_alarm" "alarm_private_cpu" {
-  for_each = toset(aws_instance.web_test_private.id)
+  for_each = toset(local.instance_ids)
 
   alarm_name          = "HighCPU-${each.key}"
   comparison_operator = "GreaterThanThreshold"
@@ -37,7 +43,7 @@ resource "aws_cloudwatch_metric_alarm" "alarm_private_cpu" {
   alarm_actions = [aws_sns_topic.alerts.arn]
 }
 resource "aws_cloudwatch_metric_alarm" "alert_public_ram" {
-  for_each = toset(aws_instance.web_test.id)
+  for_each = toset(local.instance_ids)
 
   alarm_name          = "HighRAM-${each.key}"
   comparison_operator = "GreaterThanThreshold"
@@ -54,7 +60,7 @@ resource "aws_cloudwatch_metric_alarm" "alert_public_ram" {
   alarm_actions = [aws_sns_topic.alerts.arn]
 }
 resource "aws_cloudwatch_metric_alarm" "alert_private_ram" {
-  for_each = toset(aws_instance.web_test_private)
+  for_each = toset(local.instance_ids)
 
   alarm_name          = "HighRAM-${each.key}"
   comparison_operator = "GreaterThanThreshold"
@@ -72,7 +78,7 @@ resource "aws_cloudwatch_metric_alarm" "alert_private_ram" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "alert_disk_public" {
-  for_each = toset(aws_instance.web_test.id)
+  for_each = toset(local.instance_ids)
 
   alarm_name          = "HighDisk-${each.key}"
   comparison_operator = "GreaterThanThreshold"
@@ -91,7 +97,7 @@ resource "aws_cloudwatch_metric_alarm" "alert_disk_public" {
   alarm_actions = [aws_sns_topic.alerts.arn]
 }
 resource "aws_cloudwatch_metric_alarm" "alert_disk_private" {
-  for_each = toset(aws_instance.web_test_private)
+  for_each = toset(local.instance_ids)
 
   alarm_name          = "HighDisk-${each.key}"
   comparison_operator = "GreaterThanThreshold"
