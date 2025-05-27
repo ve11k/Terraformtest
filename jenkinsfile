@@ -6,7 +6,7 @@ pipeline {
   }
 
   environment {
-    TF_VERSION = '1.7.5'
+    TF_VERSION = '1.12.1'
     TF_DIR = 'terraform'  // якщо код у підкаталозі
   }
 
