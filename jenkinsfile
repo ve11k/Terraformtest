@@ -8,7 +8,7 @@ pipeline {
  environment {
     AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
-    AWS_DEFAULT_REGION    = 'us-east-1' 
+    AWS_DEFAULT_REGION = credentials('AWS_DEFAULT_REGION') 
     TF_VERSION = '1.12.1'
     TF_DIR = '.'  // якщо код у підкаталозі
   }
@@ -18,7 +18,7 @@ pipeline {
     stage('Terraform Init') {
       steps {
         dir("${env.TF_DIR}") {
-          sh 'sudo terraform init'
+          sh 'terraform init'
         }
       }
     }
@@ -26,7 +26,7 @@ pipeline {
     stage('Terraform Validate') {
       steps {
         dir("${env.TF_DIR}") {
-          sh 'sudo terraform validate'
+          sh 'terraform validate'
         }
       }
     }
@@ -36,9 +36,9 @@ pipeline {
         dir("${env.TF_DIR}") {
           script {
             if (params.ACTION == 'apply') {
-              sh 'sudo terraform plan -out=tfplan'
+              sh 'terraform plan -out=tfplan'
             } else {
-              sh 'sudo terraform plan -destroy -out=tfplan'
+              sh 'terraform plan -destroy -out=tfplan'
             }
           }
         }
@@ -57,7 +57,7 @@ pipeline {
     stage('Terraform Apply/Destroy') {
       steps {
         dir("${env.TF_DIR}") {
-          sh 'sudo terraform apply -auto-approve tfplan'
+          sh 'terraform apply -auto-approve tfplan'
         }
       }
     }
