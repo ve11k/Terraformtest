@@ -5,7 +5,7 @@ pipeline {
     choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'Вибери дію Terraform')
   }
 
-  environment {
+ environment {
     AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
     AWS_DEFAULT_REGION    = 'us-east-1' 
@@ -14,12 +14,6 @@ pipeline {
   }
 
   stages {
-
-    stage('Checkout') {
-      steps {
-        git branch: 'dev', credentialsId: 've11k', url: 'https://github.com/ve11k/Terraformtest.git'
-      }
-    }
 
     stage('Terraform Init') {
       steps {
