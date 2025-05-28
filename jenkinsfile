@@ -18,7 +18,9 @@ pipeline {
     stage('Terraform Init') {
       steps {
         dir("${env.TF_DIR}") {
-          sh 'sudo terraform init'
+          withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]){
+            sh 'terraform init'
+          }
         }
       }
     }
@@ -26,7 +28,9 @@ pipeline {
     stage('Terraform Validate') {
       steps {
         dir("${env.TF_DIR}") {
-          sh 'sudo terraform validate'
+          withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]){
+            sh 'terraform validate'
+          }
         }
       }
     }
@@ -36,9 +40,9 @@ pipeline {
         dir("${env.TF_DIR}") {
           script {
             if (params.ACTION == 'apply') {
-              sh 'sudo terraform plan -out=tfplan'
+              sh 'terraform plan -out=tfplan'
             } else {
-              sh 'sudo terraform plan -destroy -out=tfplan'
+              sh 'terraform plan -destroy -out=tfplan'
             }
           }
         }
@@ -57,7 +61,7 @@ pipeline {
     stage('Terraform Apply/Destroy') {
       steps {
         dir("${env.TF_DIR}") {
-          sh 'sudo terraform apply -auto-approve tfplan'
+          sh 'terraform apply -auto-approve tfplan'
         }
       }
     }
