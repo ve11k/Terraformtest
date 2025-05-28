@@ -18,7 +18,7 @@ pipeline {
     stage('Terraform Init') {
       steps {
         dir("${env.TF_DIR}") {
-          sh 'terraform init'
+          sh 'sudo terraform init'
         }
       }
     }
@@ -26,7 +26,7 @@ pipeline {
     stage('Terraform Validate') {
       steps {
         dir("${env.TF_DIR}") {
-          sh 'terraform validate'
+          sh 'sudo terraform validate'
         }
       }
     }
@@ -36,9 +36,9 @@ pipeline {
         dir("${env.TF_DIR}") {
           script {
             if (params.ACTION == 'apply') {
-              sh 'terraform plan -out=tfplan'
+              sh 'sudo terraform plan -out=tfplan'
             } else {
-              sh 'terraform plan -destroy -out=tfplan'
+              sh 'sudo terraform plan -destroy -out=tfplan'
             }
           }
         }
@@ -57,7 +57,7 @@ pipeline {
     stage('Terraform Apply/Destroy') {
       steps {
         dir("${env.TF_DIR}") {
-          sh 'terraform apply -auto-approve tfplan'
+          sh 'sudo terraform apply -auto-approve tfplan'
         }
       }
     }
