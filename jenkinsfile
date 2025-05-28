@@ -6,6 +6,9 @@ pipeline {
   }
 
   environment {
+    AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+    AWS_DEFAULT_REGION    = 'us-east-1' 
     TF_VERSION = '1.12.1'
     TF_DIR = '.'  // якщо код у підкаталозі
   }
@@ -14,7 +17,7 @@ pipeline {
 
     stage('Checkout') {
       steps {
-        git credentialsId: 've11k', url: 'https://github.com/ve11k/Terraformtest.git'
+        git branch: 'dev', credentialsId: 've11k', url: 'https://github.com/ve11k/Terraformtest.git'
       }
     }
 
