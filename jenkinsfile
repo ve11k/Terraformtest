@@ -18,9 +18,7 @@ pipeline {
     stage('Terraform Init') {
       steps {
         dir("${env.TF_DIR}") {
-          withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]){
-            sh 'terraform init'
-          }
+          sh 'terraform init'
         }
       }
     }
@@ -28,13 +26,11 @@ pipeline {
     stage('Terraform Validate') {
       steps {
         dir("${env.TF_DIR}") {
-          withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]){
-            sh 'terraform validate'
-          }
+          sh 'terraform validate'
         }
       }
     }
-
+  
     stage('Terraform Plan') {
       steps {
         dir("${env.TF_DIR}") {
