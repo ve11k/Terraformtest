@@ -1,10 +1,9 @@
 resource "aws_sns_topic" "alerts" {
   name = "ec2-alerts-topic"
 }
-
 locals {
   instance = {
-    web_test= aws_instance.web_test.id,
+    web_test         = aws_instance.web_test.id,
     web_test_private = aws_instance.web_test_private.id
   }
 }
@@ -21,7 +20,7 @@ resource "aws_cloudwatch_metric_alarm" "alarm_cpu" {
   threshold           = 80
   alarm_description   = "CPU > 80% for 5 minutes"
   dimensions = {
-    InstanceId = each.key
+    InstanceId = each.value
   }
   alarm_actions = [aws_sns_topic.alerts.arn]
 }
@@ -36,10 +35,10 @@ resource "aws_cloudwatch_metric_alarm" "alert_ram" {
   namespace           = "CWAgent"
   period              = 60
   statistic           = "Average"
-  threshold           = 80
-  alarm_description   = "RAM > 80% for 5 minutes"
+  threshold           = 8
+  alarm_description   = "RAM > 8% for 5 minutes"
   dimensions = {
-    InstanceId = each.key
+    InstanceId = each.value
   }
   alarm_actions = [aws_sns_topic.alerts.arn]
 }
@@ -54,12 +53,12 @@ resource "aws_cloudwatch_metric_alarm" "alert_disk" {
   namespace           = "CWAgent"
   period              = 60
   statistic           = "Average"
-  threshold           = 85
-  alarm_description   = "Disk > 85% for 5 minutes"
+  threshold           = 5
+  alarm_description   = "Disk > 5% for 5 minutes"
   dimensions = {
-    InstanceId = each.key
+    InstanceId = each.value
     path       = "/"
-    fstype     = "xfs" 
+    fstype     = "ext4"
   }
   alarm_actions = [aws_sns_topic.alerts.arn]
 }

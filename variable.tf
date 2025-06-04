@@ -1,5 +1,5 @@
 variable "protocol" {
-  type = string
+  type    = string
   default = "tcp"
 }
 variable "region" {

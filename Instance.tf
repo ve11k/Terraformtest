@@ -7,24 +7,38 @@ resource "aws_instance" "web_test" {
   availability_zone           = var.region_zone
   associate_public_ip_address = true
 
+  iam_instance_profile = aws_iam_instance_profile.ec2_instance_profile.name
+
   tags = {
     Name = "Test_Main_Instance"
   }
-  provisioner "local-exec" {
-    command = "echo ${aws_instance.web_test.public_ip}"
+  connection {
+    type        = "ssh"
+    user        = "ubuntu"
+    private_key = file("keys/testkey")
+    host        = self.public_ip
 
   }
   provisioner "file" {
     source      = "deploy_cloudwatch.sh"
     destination = "/tmp/deploy_cloudwatch.sh"
   }
+  
   provisioner "remote-exec" {
 
     inline = [
+      "while ! nc -z localhost 22; do echo 'Waiting for SSH...'; sleep 5; done",
+      "ls -la /tmp/",
+      "ls -l /tmp/",
       "chmod +x /tmp/deploy_cloudwatch.sh",
       "sudo /tmp/deploy_cloudwatch.sh"
     ]
   }
+  provisioner "local-exec" {
+    command = "echo ${aws_instance.web_test.public_ip}"
+
+  }
+  
 
 }
 
@@ -36,31 +50,34 @@ resource "aws_instance" "web_test_private" {
   vpc_security_group_ids      = [aws_security_group.test_private_sg.id]
   availability_zone           = var.region_zone
   associate_public_ip_address = false
+  
+  tags ={
+      Name = "Test_Second_Instance"
+  }
+  connection {
+    type        = "ssh"
+    user        = "ubuntu"
+    private_key = file("keys/privatekey")
+    host        = self.private_ip
 
-  provisioner "file" {
+    bastion_host        = aws_instance.web_test.public_ip
+    bastion_user        = "ubuntu"
+    bastion_private_key = file("keys/testkey")
+  }
+  /*provisioner "file" {
     source      = "script_wb.sh"
     destination = "/tmp/script_wb.sh"
   }
   provisioner "remote-exec" {
 
     inline = [
+      "ls -la /tmp/",
       "chmod +x /tmp/script_wb.sh",
       "sudo /tmp/script_wb.sh"
     ]
   }
-  tags = {
-    Name = "Test_Second_Instance"
-  }
-  connection {
-  type                = "ssh"
-  user                = "ubuntu"                       
-  private_key         = file("keys/privatekey")   
-  host                = self.private_ip               
-
-  bastion_host        = aws_instance.web_test.public_ip
-  bastion_user        = "ubuntu"                       
-  bastion_private_key = file("keys/testkey")       
-  }
+  */
+  
   provisioner "local-exec" {
     command = "echo ${aws_instance.web_test_private.private_ip}"
 

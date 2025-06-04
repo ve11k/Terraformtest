@@ -1,15 +1,3 @@
-#resource "aws_s3_bucket" "terraform_bucket" {
-#bucket = "buckettest2875"
-#lifecycle {
-#   prevent_destroy = true
-# }
-
-#tags = {
-#   Name        = "Terraform test bucket"
-#   Environment = "Dev"
-# }
-#}
-
 
 resource "aws_security_group" "albforsite_sg" {
   name   = "alb_sg"
