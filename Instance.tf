@@ -12,8 +12,19 @@ resource "aws_instance" "web_test" {
   }
   provisioner "local-exec" {
     command = "echo ${aws_instance.web_test.public_ip}"
-
   }
+  provisioner "remote-exec" {
+    inline = [ 
+      "DD_API_KEY=${var.datadog_api_key} bash -c \"$(curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script.sh)\""
+      
+      ]
+  }
+  connection {
+    type        = "ssh"
+    user        = "ubuntu"
+    private_key = file("keys/testkey")
+    host        = self.public_ip
+    }
 
 }
 
@@ -41,14 +52,14 @@ resource "aws_instance" "web_test_private" {
     Name = "Test_Second_Instance"
   }
   connection {
-  type                = "ssh"
-  user                = "ubuntu"                       
-  private_key         = file("keys/privatekey")   
-  host                = self.private_ip               
+    type        = "ssh"
+    user        = "ubuntu"
+    private_key = file("keys/privatekey")
+    host        = self.private_ip
 
-  bastion_host        = aws_instance.web_test.public_ip
-  bastion_user        = "ubuntu"                       
-  bastion_private_key = file("keys/testkey")       
+    bastion_host        = aws_instance.web_test.public_ip
+    bastion_user        = "ubuntu"
+    bastion_private_key = file("keys/testkey")
   }
   provisioner "local-exec" {
     command = "echo ${aws_instance.web_test_private.private_ip}"

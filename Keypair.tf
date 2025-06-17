@@ -9,12 +9,12 @@
   public_key = file("${path.module}/keys/privatekey.pub")
 }*/
 module "module_key_main" {
-  source = "./module_key"
-  key_name = "test-key"
+  source            = "./module_key"
+  key_name          = "test-key"
   key_public_source = file("${path.module}/keys/testkey.pub")
 }
 module "module_key_second" {
-  source = "./module_key"
-  key_name = "private-key"
+  source            = "./module_key"
+  key_name          = "private-key"
   key_public_source = file("${path.module}/keys/privatekey.pub")
 }
