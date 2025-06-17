@@ -378,3 +378,29 @@ resource "datadog_integration_aws_account" "datadog_integration" {
     }
   }
 }
+
+resource "datadog_monitor" "memory_usage_alert" {
+  name               = "Low Memory Alert"
+  type               = "metric alert"
+  message            = <<EOM
+  {{#is_alert}}🚨 *Low Memory Usage Detected!* 🚨
+  Host: {{host.name}} has less than 20% of memory left.
+  {{/is_alert}}
+  {{#is_recovery}}✅ *Memory usage back to normal* on {{host.name}}{{/is_recovery}}
+  EOM
+
+  query = "avg(last_5m):avg:system.mem.pct_usable{*} by {host} < 0.20"
+  monitor_thresholds {
+    critical = 0.20
+    warning  = 0.30
+  }
+
+  notify_no_data    = true
+  no_data_timeframe = 10
+
+  evaluation_delay  = 60 # optional, затримка для уникнення false positive
+  include_tags      = true
+  tags              = ["env:prod", "monitor:memory"]
+
+  priority = 2
+}

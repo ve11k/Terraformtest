@@ -11,7 +11,7 @@
 #}
 
 
-resource "aws_security_group" "albforsite_sg" {
+/*resource "aws_security_group" "albforsite_sg" {
   name   = "alb_sg"
   vpc_id = aws_vpc.test_vpc.id
 
@@ -65,4 +65,4 @@ resource "aws_lb_listener" "front_end" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.forsite-tg.arn
   }
-}
+}*/

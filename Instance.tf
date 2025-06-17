@@ -28,7 +28,7 @@ resource "aws_instance" "web_test" {
 
 }
 
-resource "aws_instance" "web_test_private" {
+/*resource "aws_instance" "web_test_private" {
   ami                         = data.aws_ami.amiID.id
   instance_type               = "t2.micro"
   key_name                    = "private-key"
@@ -65,7 +65,7 @@ resource "aws_instance" "web_test_private" {
     command = "echo ${aws_instance.web_test_private.private_ip}"
 
   }
-}
+}*/
 
 /*output "Ip_addrpublicvm" {
   description = "IP addr of public vm ip"
