@@ -15,6 +15,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Generate SSH Key test_key and private_key
+        run: |
+          ssh-keygen -t rsa -b 4096 -m PEM -f test_key -N ""
+          ssh-keygen -t rsa -b 4096 -m PEM -f private_key -N ""
+
+
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
 
@@ -61,3 +67,6 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply tfplan
+
+      - name: Cleanup SSH key
+        run: rm -f test_key test_key.pub private_key private_key.pub
