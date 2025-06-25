@@ -18,3 +18,9 @@ variable "private_key_pem" {
   type        = string
   sensitive   = true
 }
+variable "test_public_key" {
+  type = string
+}
+variable "private_public_key" {
+  type = string
+}
