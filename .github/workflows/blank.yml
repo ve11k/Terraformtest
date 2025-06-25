@@ -80,7 +80,7 @@ jobs:
           name: tfplan
 
       - name: Terraform Apply
-        run: 
+        run: |
             terraform plan -out=tfplan
             terraform apply tfplan
 
