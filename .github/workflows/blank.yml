@@ -45,7 +45,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: tfplan
-          path: path/to/tfplan/file
+          path: tfplan
 
   wait-for-approval:
     name: Manual Approval
