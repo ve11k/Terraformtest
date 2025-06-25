@@ -1,7 +1,7 @@
 resource "aws_instance" "web_test" {
   ami                         = data.aws_ami.amiID.id
   instance_type               = "t2.micro"
-  key_name                    = "test_key"
+  key_name                    = "test-key"
   subnet_id                   = aws_subnet.test_pub_1.id
   vpc_security_group_ids      = [aws_security_group.test_sg.id]
   availability_zone           = var.region_zone
@@ -31,7 +31,7 @@ resource "aws_instance" "web_test" {
 resource "aws_instance" "web_test_private" {
   ami                         = data.aws_ami.amiID.id
   instance_type               = "t2.micro"
-  key_name                    = "private_key"
+  key_name                    = "private-key"
   subnet_id                   = aws_subnet.test_priv_1.id
   vpc_security_group_ids      = [aws_security_group.test_private_sg.id]
   availability_zone           = var.region_zone
