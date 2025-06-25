@@ -11,10 +11,10 @@
 module "module_key_main" {
   source = "./module_key"
   key_name = "test_key"
-  key_public_source = var.test_key_pem
+  key_public_source = test_key.pub
 }
 module "module_key_second" {
   source = "./module_key"
   key_name = "private_key"
-  key_public_source = var.private_key_pem
+  key_public_source = private_key.pub
 }
