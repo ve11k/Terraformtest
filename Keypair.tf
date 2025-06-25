@@ -11,10 +11,10 @@
 module "module_key_main" {
   source = "./module_key"
   key_name = "test-key"
-  key_public_source = file("${path.module}/testkey.pub")
+  key_public_source = file("${path.module}/keys/testkey.pub")
 }
 module "module_key_second" {
   source = "./module_key"
   key_name = "private-key"
-  key_public_source = file("${path.module}/privatekey.pub")
+  key_public_source = file("${path.module}/keys/privatekey.pub")
 }
