@@ -8,3 +8,13 @@ variable "region" {
 variable "region_zone" {
   default = "us-east-1a"
 }
+variable "test_key_pem" {
+  description = "Private key in PEM format"
+  type        = string
+  sensitive   = true
+}
+variable "private_key_pem" {
+  description = "Private key in PEM format"
+  type        = string
+  sensitive   = true
+}
