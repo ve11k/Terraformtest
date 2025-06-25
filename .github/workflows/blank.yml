@@ -18,8 +18,18 @@ jobs:
       - name: Generate SSH Key test_key and private_key
         run: |
           mkdir -p keys
-          ssh-keygen -t rsa -b 4096 -m PEM -f keys/test_key -N ""
-          ssh-keygen -t rsa -b 4096 -m PEM -f keys/private_key -N ""
+          ssh-keygen -t rsa -b 4096 -m PEM -f test_key -N ""
+          ssh-keygen -t rsa -b 4096 -m PEM -f private_key -N ""
+        
+      - name: Export key
+        run: |
+          echo "TF_VAR_private_key_pem<<EOF" >> $GITHUB_ENV
+          cat private_key >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+          echo "TF_VAR_test_key_pem<<EOF" >> $GITHUB_ENV
+          cat test_key >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
 
       - name: Set up Terraform
