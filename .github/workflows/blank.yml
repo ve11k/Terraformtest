@@ -45,7 +45,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: tfplan
-          path: tfplan
+          path: ./logs
 
   wait-for-approval:
     name: Manual Approval
@@ -80,7 +80,9 @@ jobs:
           name: tfplan
 
       - name: Terraform Apply
-        run: terraform apply tfplan
+        run: |
+            terraform plan -out=tfplan
+            terraform apply tfplan
 
       - name: Cleanup SSH key
         run: rm -f test_key test_key.pub private_key private_key.pub
