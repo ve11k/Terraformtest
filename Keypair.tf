@@ -10,11 +10,11 @@
 }*/
 module "module_key_main" {
   source = "./module_key"
-  key_name = "test-key"
-  key_public_source = file("${path.module}/keys/testkey.pub")
+  key_name = "test_key"
+  key_public_source = var.test_key_pem
 }
 module "module_key_second" {
   source = "./module_key"
-  key_name = "private-key"
-  key_public_source = file("${path.module}/keys/privatekey.pub")
+  key_name = "private_key"
+  key_public_source = var.private_key_pem
 }
