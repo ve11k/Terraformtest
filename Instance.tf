@@ -54,12 +54,12 @@ resource "aws_instance" "web_test_private" {
   connection {
   type                = "ssh"
   user                = "ubuntu"                       
-  private_key         = file("keys/privatekey")   
+  private_key         = file("/privatekey")   
   host                = self.private_ip               
 
   bastion_host        = aws_instance.web_test.public_ip
   bastion_user        = "ubuntu"                       
-  bastion_private_key = file("keys/testkey")       
+  bastion_private_key = file("/testkey")       
   }
   provisioner "local-exec" {
     command = "echo ${aws_instance.web_test_private.private_ip}"
