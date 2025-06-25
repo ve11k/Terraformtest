@@ -14,6 +14,9 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     steps:
       - uses: actions/checkout@v4
+      
+      - name: ter destroy
+        run:  terraform destroy
 
       - name: Generate SSH Key test_key and private_key
         run: |
