@@ -30,6 +30,15 @@ jobs:
           echo "TF_VAR_test_key_pem<<EOF" >> $GITHUB_ENV
           cat test_key >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
+      - name: Read public key and pass as var
+        run: |
+          echo "TF_VAR_private_public_key<<EOF" >> $GITHUB_ENV
+          cat private_key.pub >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          
+          echo "TF_VAR_test_public_key<<EOF" >> $GITHUB_ENV
+          cat test_key.pub >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
 
       - name: Set up Terraform
