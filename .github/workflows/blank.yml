@@ -30,6 +30,7 @@ jobs:
           echo "TF_VAR_test_key_pem<<EOF" >> $GITHUB_ENV
           cat test_key >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
+
       - name: Read public key and pass as var
         run: |
           echo "TF_VAR_private_public_key<<EOF" >> $GITHUB_ENV
@@ -88,12 +89,12 @@ jobs:
         with:
           name: tfplan
 
-  #    - name: Terraform Apply
-   #     run: |
+      - name: Terraform Apply
+        run: |
             
-   #         terraform init -reconfigure
-   ##         terraform plan -out=tfplan
-     #       terraform apply tfplan
+            terraform init -reconfigure
+            terraform plan -out=tfplan
+            terraform apply tfplan
 
-     # - name: Cleanup SSH key
-      #  run: rm -f test_key test_key.pub private_key private_key.pub
+      - name: Cleanup SSH key
+        run: rm -f test_key test_key.pub private_key private_key.pub
