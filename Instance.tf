@@ -1,7 +1,7 @@
 resource "aws_instance" "web_test" {
   ami                         = data.aws_ami.amiID.id
   instance_type               = "t2.micro"
-  key_name                    = "test-key"
+  key_name                    = "test_key"
   subnet_id                   = aws_subnet.test_pub_1.id
   vpc_security_group_ids      = [aws_security_group.test_sg.id]
   availability_zone           = var.region_zone
@@ -31,7 +31,7 @@ resource "aws_instance" "web_test" {
 resource "aws_instance" "web_test_private" {
   ami                         = data.aws_ami.amiID.id
   instance_type               = "t2.micro"
-  key_name                    = "private-key"
+  key_name                    = "private_key"
   subnet_id                   = aws_subnet.test_priv_1.id
   vpc_security_group_ids      = [aws_security_group.test_private_sg.id]
   availability_zone           = var.region_zone
@@ -54,12 +54,12 @@ resource "aws_instance" "web_test_private" {
   connection {
   type                = "ssh"
   user                = "ubuntu"                       
-  private_key         = file("/privatekey")   
+  private_key         = var.private_key_pem  
   host                = self.private_ip               
 
   bastion_host        = aws_instance.web_test.public_ip
   bastion_user        = "ubuntu"                       
-  bastion_private_key = file("/testkey")       
+  bastion_private_key = var.test_key_pem       
   }
   provisioner "local-exec" {
     command = "echo ${aws_instance.web_test_private.private_ip}"
