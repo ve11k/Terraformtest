@@ -17,8 +17,9 @@ jobs:
 
       - name: Generate SSH Key test_key and private_key
         run: |
-          ssh-keygen -t rsa -b 4096 -m PEM -f test_key -N ""
-          ssh-keygen -t rsa -b 4096 -m PEM -f private_key -N ""
+          mkdir -p keys
+          ssh-keygen -t rsa -b 4096 -m PEM -f keys/test_key -N ""
+          ssh-keygen -t rsa -b 4096 -m PEM -f keys/private_key -N ""
 
 
       - name: Set up Terraform
