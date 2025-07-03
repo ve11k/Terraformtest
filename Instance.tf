@@ -14,10 +14,10 @@ resource "aws_instance" "web_test" {
     command = "echo ${aws_instance.web_test.public_ip}"
 
   }
-  provisioner "file" {
+  /*provisioner "file" {
     source      = "deploy_cloudwatch.sh"
     destination = "/tmp/deploy_cloudwatch.sh"
-  }
+  }*/
   provisioner "remote-exec" {
 
     inline = [
