@@ -19,7 +19,7 @@ jobs:
 
       - name: Generate SSH Key test_key and private_key
         run: |
-          rm -rf .terraform
+          
           mkdir -p keys
           ssh-keygen -t rsa -b 4096 -m PEM -f test_key -N ""
           ssh-keygen -t rsa -b 4096 -m PEM -f private_key -N ""
@@ -53,6 +53,9 @@ jobs:
 
       - name: Terraform Plan
         run: terraform plan 
+        
+      - name: Check that tfplan exists
+        run: ls -la tfplan
 
       - name: Upload Plan
         uses: actions/upload-artifact@v4
@@ -102,7 +105,7 @@ jobs:
   
   wait-for-approval-destroy:
       name: Manual Approval
-      needs: terraform-plan
+      needs: terraform-apply
       runs-on: ubuntu-latest
       steps:
         - name: Just pass after approval
