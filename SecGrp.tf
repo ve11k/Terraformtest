@@ -3,76 +3,81 @@ resource "aws_security_group" "test_sg" {
   vpc_id      = aws_vpc.test_vpc.id
   description = "Allow TLS inbound traffic and all outbound traffic"
 
+  ingress {
+    description = "SSH from 46.151.250.23"
+    from_port   = 22
+    to_port     = 22
+    protocol    = var.protocol
+    cidr_blocks = ["46.151.253.77/32"]
+  }
+
+  ingress {
+    description = "HTTP from anywhere"
+    from_port   = 80
+    to_port     = 80
+    protocol    = var.protocol
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    description = "Allow all IPv4"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    description = "Allow all IPv6"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    ipv6_cidr_blocks = ["::/0"]
+  }
 
   tags = {
     Name = "test_sg"
   }
 }
-
-resource "aws_vpc_security_group_ingress_rule" "test_sg_ipv4" {
-  security_group_id = aws_security_group.test_sg.id
-  cidr_ipv4         = "46.151.250.23/32"
-  from_port         = 22
-  ip_protocol       = var.protocol
-  to_port           = 22
-}
-
-resource "aws_vpc_security_group_ingress_rule" "test_sg_http" {
-  security_group_id = aws_security_group.test_sg.id
-  cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 80
-  ip_protocol       = var.protocol
-  to_port           = 80
-}
-
-resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
-  security_group_id = aws_security_group.test_sg.id
-  cidr_ipv4         = "0.0.0.0/0"
-  ip_protocol       = "-1" # semantically equivalent to all ports
-}
-
-
-resource "aws_vpc_security_group_egress_rule" "allowAllOutbound_ipv6" {
-  security_group_id = aws_security_group.test_sg.id
-  cidr_ipv6         = "::/0"
-  ip_protocol       = "-1" # semantically equivalent to all ports
-}
-
 resource "aws_security_group" "test_private_sg" {
   name        = "test_private_sg"
   vpc_id      = aws_vpc.test_vpc.id
   description = "Allow TLS traffic from vm1"
 
+  ingress {
+    description = "SSH from test_sg"
+    from_port   = 22
+    to_port     = 22
+    protocol    = var.protocol
+    security_groups = [aws_security_group.test_sg.id]
+  }
+
+  ingress {
+    description = "HTTP from ALB SG"
+    from_port   = 80
+    to_port     = 80
+    protocol    = var.protocol
+    security_groups = [aws_security_group.albforsite_sg.id]
+  }
+
+  egress {
+    description = "Allow all IPv4"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    description = "Allow all IPv6"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    ipv6_cidr_blocks = ["::/0"]
+  }
 
   tags = {
     Name = "test_private_sg"
   }
-}
-
-resource "aws_vpc_security_group_ingress_rule" "test_private_sg_ipv4" {
-  security_group_id            = aws_security_group.test_private_sg.id
-  referenced_security_group_id = aws_security_group.test_sg.id
-
-  from_port   = 22
-  ip_protocol = var.protocol
-  to_port     = 22
-
-}
-resource "aws_vpc_security_group_ingress_rule" "test_private_sg_lb" {
-  security_group_id            = aws_security_group.test_private_sg.id
-  referenced_security_group_id = aws_security_group.albforsite_sg.id
-  from_port                    = 80
-  ip_protocol                  = var.protocol
-  to_port                      = 80
-}
-resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4_private" {
-  security_group_id = aws_security_group.test_private_sg.id
-  cidr_ipv4         = "0.0.0.0/0"
-  ip_protocol       = "-1" # semantically equivalent to all ports
-}
-resource "aws_vpc_security_group_egress_rule" "allowAllOutbound_ipv6_private" {
-  security_group_id = aws_security_group.test_private_sg.id
-  cidr_ipv6         = "::/0"
-  ip_protocol       = "-1" # semantically equivalent to all ports
 }
 
