@@ -7,7 +7,7 @@ on:
     workflows: ["Terraform Plan & Apply"]
     types:
       - completed
-      - failed
+      
 
 jobs:
   upload-logs:
