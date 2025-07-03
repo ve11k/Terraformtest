@@ -15,8 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      
+
       - name: Generate SSH Key test_key and private_key
         run: |
+          rm -rf .terraform
           mkdir -p keys
           ssh-keygen -t rsa -b 4096 -m PEM -f test_key -N ""
           ssh-keygen -t rsa -b 4096 -m PEM -f private_key -N ""
@@ -40,10 +43,10 @@ jobs:
           echo "TF_VAR_test_public_key<<EOF" >> $GITHUB_ENV
           cat test_key.pub >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-
-
+         
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
+
 
       - name: Terraform Init
         run: terraform init
