@@ -65,10 +65,6 @@ jobs:
       needs: terraform-plan
       runs-on: ubuntu-latest
       steps:
-        - name: Wait for approval
-          uses: hmarr/auto-approve-action@v3
-          with:
-            github-token: ${{ secrets.GITHUB_TOKEN }}
         - name: Just pass after approval
           run: echo "Approved ✅"  # блокування до ручного схвалення
       environment:
@@ -100,6 +96,40 @@ jobs:
       - name: Terraform destroy
         run: |
             
+            terraform destroy tfplan
+      - name: Cleanup SSH key
+        run: rm -f test_key test_key.pub private_key private_key.pub
+  
+  wait-for-approval-destroy:
+      name: Manual Approval
+      needs: terraform-plan
+      runs-on: ubuntu-latest
+      steps:
+        - name: Just pass after approval
+          run: echo "Approved ✅"  # блокування до ручного схвалення
+      environment:
+        name: production
+        url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+  terraform-destroy:
+    name: Terraform destroy
+    needs: wait-for-approval-destroy
+    runs-on: ubuntu-latest
+    env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+#
+      - name: Download Plan
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan
+      - name: Terraform destroy
+        run: |
             terraform destroy tfplan
       - name: Cleanup SSH key
         run: rm -f test_key test_key.pub private_key private_key.pub
