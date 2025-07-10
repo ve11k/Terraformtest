@@ -10,7 +10,6 @@
 # }
 #}
 
-
 resource "aws_security_group" "albforsite_sg" {
   name   = "alb_sg"
   vpc_id = aws_vpc.test_vpc.id
@@ -41,6 +40,7 @@ resource "aws_lb" "lbforsite" {
     Name = "AppLoadBalancer"
   }
 }
+
 resource "aws_lb_target_group" "forsite-tg" {
   name     = "forsite-tg"
   port     = 80
@@ -51,11 +51,13 @@ resource "aws_lb_target_group" "forsite-tg" {
     path = "/"
   }
 }
+
 resource "aws_lb_target_group_attachment" "private_attach_tg" {
   target_group_arn = aws_lb_target_group.forsite-tg.arn
   target_id        = aws_instance.web_test_private.id
   port             = 80
 }
+
 resource "aws_lb_listener" "front_end" {
   load_balancer_arn = aws_lb.lbforsite.arn
   port              = 80

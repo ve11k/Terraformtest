@@ -15,12 +15,3 @@ output "instance_id" {
   description = "AMI ID of ubuntu instance"
   value       = data.aws_ami.amiID.id
 }
-
-
-terraform {
-  backend "s3" {
-    bucket = "buckettest2875"
-    key    = "testterraform/terraform.tfstate"
-    region = "us-east-1"
-  }
-}

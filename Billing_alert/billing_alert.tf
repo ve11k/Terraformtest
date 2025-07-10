@@ -1,7 +1,7 @@
-/*resource "aws_cloudwatch_metric_alarm" "mybilling_import" {
+resource "aws_cloudwatch_metric_alarm" "Billing_alert" {
   actions_enabled = true
   alarm_actions = [
-    "arn:aws:sns:us-east-1:361769593086:Billing_monitor",
+    aws_sns_topic.billing_alerting_topic.arn
   ]
   alarm_description   = "AWSBilling"
   alarm_name          = "AWSBilling"
@@ -25,5 +25,14 @@
   threshold_metric_id                   = null
   treat_missing_data                    = "missing"
   unit                                  = null
+}
 
-}*/
+resource "aws_sns_topic" "billing_alerting_topic" {
+  name = "billing_alerting_topic"
+}
+
+resource "aws_sns_topic_subscription" "billing_alert_subscription" {
+  topic_arn = aws_sns_topic.billing_alerting_topic.arn
+  protocol = "email"
+  endpoint = var.alert_subscription_email
+}

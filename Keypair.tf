@@ -13,6 +13,7 @@ module "module_key_main" {
   key_name = "test_key"
   key_public_source = var.test_public_key
 }
+
 module "module_key_second" {
   source = "./module_key"
   key_name = "private_key"

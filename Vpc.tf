@@ -38,7 +38,6 @@ resource "aws_subnet" "test_priv_1" {
   }
 }
 
-
 resource "aws_subnet" "test_priv_2" {
   vpc_id                  = aws_vpc.test_vpc.id
   cidr_block              = "10.0.5.0/24"
@@ -48,7 +47,6 @@ resource "aws_subnet" "test_priv_2" {
     Name = "test_priv_2"
   }
 }
-
 
 resource "aws_internet_gateway" "test_IGW" {
   vpc_id = aws_vpc.test_vpc.id
@@ -69,7 +67,6 @@ resource "aws_route_table" "test_pub_RT" {
     Name = "test_pub_RT"
   }
 }
-
 
 resource "aws_route_table_association" "test_pub_1_a" {
   subnet_id      = aws_subnet.test_pub_1.id

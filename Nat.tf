@@ -4,7 +4,6 @@ resource "aws_eip" "nat_eip" {
    domain   = "vpc"
 }
 
-
 resource "aws_nat_gateway" "nat_test" {
   allocation_id = aws_eip.nat_eip.id
   subnet_id     = aws_subnet.test_pub_1.id     
@@ -19,7 +18,6 @@ resource "aws_route_table" "private_rt_for_test" {
     nat_gateway_id = aws_nat_gateway.nat_test.id
   }
 }
-
 
 resource "aws_route_table_association" "private_assoc_for_test" {
   subnet_id      = aws_subnet.test_priv_1.id

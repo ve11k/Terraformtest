@@ -8,6 +8,7 @@ locals {
     web_test_private = aws_instance.web_test_private.id
   }
 }
+
 resource "aws_cloudwatch_metric_alarm" "alarm_cpu" {
   for_each = local.instance
 
