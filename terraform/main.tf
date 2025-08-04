@@ -1,0 +1,124 @@
+provider "aws" {
+  region = "us-east-1"
+}
+
+resource "aws_s3_bucket" "mainforfiles" {
+  bucket = "mainforfiles "
+}
+
+resource "aws_s3_bucket" "bucket2forzvit " {
+  bucket = "bucket2forzvit "
+}
+
+resource "aws_s3_bucket" "bucket3forforecast " {
+  bucket = "bucket3forforecast "
+}
+
+resource "aws_iam_role" "lambda_exec" {
+  name = "lambda-s3-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Action    = "sts:AssumeRole",
+      Effect    = "Allow",
+      Principal = { Service = "lambda.amazonaws.com" }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "lambda_policy" {
+  name = "lambda-s3-access"
+  role = aws_iam_role.lambda_exec.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect   = "Allow",
+        Action   = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:CopyObject"
+        ],
+        Resource = "*"
+      },
+      {
+        Effect   = "Allow",
+        Action   = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
+}
+resource "aws_iam_policy" "put_only_policy" {
+  name        = "S3PutOnlyPolicy"
+  description = "Allow only PutObject to a specific bucket"
+  policy      = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Sid    = "AllowPutOnly",
+        Effect = "Allow",
+        Action = "s3:PutObject",
+        Resource = "arn:aws:s3:::mainforfiles/*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_user" "upload_user" {
+  name = "Oleksandrrole"
+}
+
+resource "aws_iam_user_policy_attachment" "attach_put_only" {
+  user       = aws_iam_user.upload_user.name
+  policy_arn = aws_iam_policy.put_only_policy.arn
+}
+
+
+
+data "archive_file" "lambda_zip" {
+  type        = "zip"
+  source_dir  = "${path.module}/lambda"
+  output_path = "${path.module}/lambda.zip"
+}
+
+resource "aws_lambda_function" "file_router" {
+  function_name = "file-router-fn"
+  role          = aws_iam_role.lambda_exec.arn
+  handler       = "handler.lambda_handler"
+  runtime       = "python3.12"
+  filename      = data.archive_file.lambda_zip.output_path
+  timeout       = 10
+
+  environment {
+    variables = {
+      ZVIT_BUCKET = aws_s3_bucket.bucket2forzvit.bucket
+      FORECAST_BUCKET   = aws_s3_bucket.bucket3forforecast.bucket
+    }
+  }
+}
+
+resource "aws_s3_bucket_notification" "trigger_lambda" {
+  bucket = aws_s3_bucket.input.id
+
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.file_router.arn
+    events              = ["s3:ObjectCreated:*"]
+  }
+
+  depends_on = [aws_lambda_permission.allow_s3]
+}
+
+resource "aws_lambda_permission" "allow_s3" {
+  statement_id  = "AllowExecutionFromS3"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.file_router.function_name
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.input.arn
+}
