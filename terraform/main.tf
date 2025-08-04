@@ -65,7 +65,9 @@ resource "aws_iam_policy" "put_only_policy" {
         Sid    = "AllowPutOnly",
         Effect = "Allow",
         Action = ["s3:PutObject","s3:ListBucket"]
-        Resource = "arn:aws:s3:::mainforfiles/*"
+        Resource = ["arn:aws:s3:::mainforfiles/*",
+                    "arn:aws:s3:::mainforfiles"
+        ]
       }
     ]
   })
