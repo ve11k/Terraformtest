@@ -3,15 +3,15 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "mainforfiles" {
-  bucket = "mainforfiles "
+  bucket = "mainforfiles"
 }
 
-resource "aws_s3_bucket" "bucket2forzvit " {
-  bucket = "bucket2forzvit "
+resource "aws_s3_bucket" "bucket2forzvit" {
+  bucket = "bucket2forzvit"
 }
 
-resource "aws_s3_bucket" "bucket3forforecast " {
-  bucket = "bucket3forforecast "
+resource "aws_s3_bucket" "bucket3forforecast" {
+  bucket = "bucket3forforecast"
 }
 
 resource "aws_iam_role" "lambda_exec" {
@@ -64,19 +64,16 @@ resource "aws_iam_policy" "put_only_policy" {
       {
         Sid    = "AllowPutOnly",
         Effect = "Allow",
-        Action = "s3:PutObject",
+        Action = ["s3:PutObject","s3:ListBucket"]
         Resource = "arn:aws:s3:::mainforfiles/*"
       }
     ]
   })
 }
 
-resource "aws_iam_user" "upload_user" {
-  name = "Oleksandrrole"
-}
 
 resource "aws_iam_user_policy_attachment" "attach_put_only" {
-  user       = aws_iam_user.upload_user.name
+  user       = "Oleksandrrole"
   policy_arn = aws_iam_policy.put_only_policy.arn
 }
 
@@ -105,7 +102,7 @@ resource "aws_lambda_function" "file_router" {
 }
 
 resource "aws_s3_bucket_notification" "trigger_lambda" {
-  bucket = aws_s3_bucket.input.id
+  bucket = aws_s3_bucket.mainforfiles.id
 
   lambda_function {
     lambda_function_arn = aws_lambda_function.file_router.arn
@@ -120,5 +117,5 @@ resource "aws_lambda_permission" "allow_s3" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.file_router.function_name
   principal     = "s3.amazonaws.com"
-  source_arn    = aws_s3_bucket.input.arn
+  source_arn    = aws_s3_bucket.mainforfiles.arn
 }
