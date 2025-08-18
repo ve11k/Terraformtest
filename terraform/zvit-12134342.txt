@@ -1,0 +1,165 @@
+      - name: Terraform Apply
+        run: terraform apply tfplan
+
+      - name: Cleanup SSH keys
+        run: rm -f test_key* private_key*
+
+  # destroy можна запускати окремо іншим workflow або вручну через Terraform
+🧠 Поради:
+Ніколи не запускай terraform destroy tfplan — це не має сенсу
+
+Якщо ти хочеш "Destroy" після apply, краще зробити окремий workflow (destroy.yml) з власним approval
+
+Також варто логічно розділити:
+
+plan → apply
+
+окремо destroy
+
+Хочеш — я можу зробити окремий destroy.yml, який теж потребує ручного підтвердження.
+
+
+
+
+
+
+
+
+You said:
+Перевыр ще цей файл name: Terraform Destroy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  terraform-plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v4   
+
+  wait-for-approval-destroy:
+        name: Manual Approval
+        needs: terraform-plan
+        runs-on: ubuntu-latest
+        steps:
+          - name: Just pass after approval
+            run: echo "Approved ✅"  # блокування до ручного схвалення
+        environment:
+          name: production
+          url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+  terraform-destroy:
+    name: Terraform destroy
+    needs: wait-for-approval-destroy
+    runs-on: ubuntu-latest
+    env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+#
+      - name: Download Plan
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan
+      - name: Terraform destroy
+        run: |
+            terraform destroy 
+      - name: Cleanup SSH key
+        run: rm -f test_key test_key.pub private_key private_key.pub
+
+
+ChatGPT said:
+Твій destroy workflow в цілому хороша ідея — запускати terraform destroy окремо, з ручним затвердженням. Але є кілька важливих помилок і потенційних покращень:
+
+⚠️ Основні помилки:
+❌ 1. terraform destroy не потребує tfplan
+Ти намагаєшся завантажити артефакт:
+
+yaml
+Copy
+Edit
+- name: Download Plan
+  uses: actions/download-artifact@v4
+  with:
+    name: tfplan
+Але terraform destroy не використовує tfplan! Це артефакт від plan, а не для destroy.
+
+💥 Якщо артефакта не існує (він вже видалений чи застарів) — job впаде з помилкою Artifact not found.
+
+❌ 2. Немає terraform init
+Без terraform init Terraform не зможе завантажити backend чи провайдери.
+
+⚠️ 3. У тебе job terraform-plan, але він порожній
+Нема жодного кроку всередині, окрім checkout.
+
+✅ Виправлений destroy.yml:
+yaml
+Copy
+Edit
+name: Terraform Destroy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  terraform-plan:
+    name: Prepare Destroy
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+  wait-for-approval-destroy:
+    name: Manual Approval
+    needs: terraform-plan
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - run: echo "Waiting for approval..."
+
+  terraform-destroy:
+    name: Terraform Destroy
+    needs: wait-for-approval-destroy
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Destroy
+        run: terraform destroy -auto-approve
+
+      - name: Cleanup SSH keys
+        run: rm -f test_key* private_key*
+🧠 Коментарі:
+Проблема	Виправлення
+Артефакт tfplan не потрібен	Видалено download-artifact
+Нема terraform init	Додано перед destroy
+Порожній terraform-plan job	Додано init, або об’єднано з destroy
+
+Хочеш, я можу ще об'єднати terraform-plan і terraform-destroy в один job, бо вони не мають сенсу окремо тут.

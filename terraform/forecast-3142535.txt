@@ -1,4 +1,4 @@
-import boto3
+sffegekfhvGHWfJBHJSVFJSRNF XRVFHBSNF SEJ,FUJKNS FGJSEHFSimport boto3
 import os
 
 s3 = boto3.client('s3')
@@ -21,21 +21,38 @@ def lambda_handler(event, context):
         return
 
     if key_lower.startswith("zvit-"):
-        target_bucket = os.environ['ZVIT_BUCKET'] 
+        target_bucket = os.environ['ZVIT_BUCKET']
         target_key = f"zvit/{key}"
     elif key_lower.startswith("forecast-"):
-        target_bucket = os.environ['ZVIT_BUCKET']
+        target_bucket = os.environ['FORECAST_BUCKET']
         target_key = f"forecast/{key}"
     else:
-        target_bucket = os.environ['FORECAST_BUCKET']
+        target_bucket = os.environ['OTHER_BUCKET']
         target_key = f"other/{key}"
-        print("Unknown file, send to 3 bucket")
-        
+        print("Unknown file type, sending to other bucket")
 
     try:
         copy_source = {'Bucket': bucket, 'Key': key}
         s3.copy_object(CopySource=copy_source, Bucket=target_bucket, Key=target_key)
         s3.delete_object(Bucket=bucket, Key=key)
-        print(f"Moved {key} to {target_bucket}")
+        print(f"Moved {key} to {target_bucket}/{target_key}")
     except Exception as e:
         print(f"Error while moving file: {e}")
+Якщо хочеш, я можу одразу показати, як у Terraform додати S3 Event Notification, щоб Lambda гарантовано викликалась при завантаженні файлу.
+Тоді проблема з "нічого не відбувається" зникне.
+
+
+
+
+
+
+
+
+
+Ask ChatGPT
+
+
+
+
+
+ChatGPT can make mistakes. Check importa

@@ -9,9 +9,22 @@ resource "aws_s3_bucket" "mainforfiles" {
 resource "aws_s3_bucket" "bucket2forzvit" {
   bucket = "bucket2forzvit"
 }
+resource "aws_s3_object" "zvit_folder" {
+  bucket = aws_s3_bucket.bucket2forzvit.bucket
+  key    = "zvit/"
+}
+resource "aws_s3_object" "forecast_folder" {
+  bucket = aws_s3_bucket.bucket2forzvit.bucket
+  key    = "forecast/"
+}
 
 resource "aws_s3_bucket" "bucket3forforecast" {
   bucket = "bucket3forforecast"
+}
+resource "aws_s3_object" "other_folder" {
+  bucket = aws_s3_bucket.bucket3forforecast.bucket
+  key    = "other/"
+
 }
 
 resource "aws_iam_role" "lambda_exec" {
@@ -73,9 +86,43 @@ resource "aws_iam_policy" "put_only_policy" {
   })
 }
 
+resource "aws_s3_bucket_policy" "put_external_policy" {
+
+ bucket = aws_s3_bucket.mainforfiles.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Sid: "AllowExternalAccountPut",
+        Effect: "Allow",
+        Principal: {
+          AWS = var.external_account_arn
+        },
+        Action: [
+          "s3:PutObject",
+          "s3:ListBucket"
+        ],
+        Resource: [
+          "arn:aws:s3:::mainforfiles",
+          "arn:aws:s3:::mainforfiles/*"
+        ]
+      }
+    ]
+  })
+}
+
+
 
 resource "aws_iam_user_policy_attachment" "attach_put_only" {
   user       = "Oleksandrrole"
+  policy_arn = aws_iam_policy.put_only_policy.arn
+}
+resource "aws_iam_user" "external_user_oleksandr" {
+  name = "external_put_Oleksandr"
+}
+resource "aws_iam_user_policy_attachment" "attach_policy" {
+  user       = aws_iam_user.external_user_oleksandr.name
   policy_arn = aws_iam_policy.put_only_policy.arn
 }
 
@@ -120,4 +167,9 @@ resource "aws_lambda_permission" "allow_s3" {
   function_name = aws_lambda_function.file_router.function_name
   principal     = "s3.amazonaws.com"
   source_arn    = aws_s3_bucket.mainforfiles.arn
+}
+
+variable "external_account_arn" {
+  description = "ARN зовнішнього AWS акаунта"
+  type        = string
 }
