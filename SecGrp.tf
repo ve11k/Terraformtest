@@ -13,7 +13,7 @@ resource "aws_vpc_security_group_ingress_rule" "test_sg_ipv4" {
   security_group_id = aws_security_group.test_sg.id
   cidr_ipv4         = "46.151.249.187/32"
   from_port         = 22
-  ip_protocol       = var.protocol
+  ip_protocol       = variable.protocol
   to_port           = 22
 }
 
@@ -21,7 +21,7 @@ resource "aws_vpc_security_group_ingress_rule" "test_sg_http" {
   security_group_id = aws_security_group.test_sg.id
   cidr_ipv4         = "0.0.0.0/0"
   from_port         = 80
-  ip_protocol       = var.protocol
+  ip_protocol       = variable.protocol
   to_port           = 80
 }
 
@@ -54,7 +54,7 @@ resource "aws_vpc_security_group_ingress_rule" "test_private_sg_ipv4" {
   referenced_security_group_id = aws_security_group.test_sg.id
 
   from_port   = 22
-  ip_protocol = var.protocol
+  ip_protocol = variable.protocol
   to_port     = 22
 
 }

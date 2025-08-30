@@ -4,7 +4,7 @@ resource "aws_instance" "web_test" {
   key_name                    = "test-key"
   subnet_id                   = aws_subnet.test_pub_1.id
   vpc_security_group_ids      = [aws_security_group.test_sg.id]
-  availability_zone           = var.region_zone
+  availability_zone           = variable.region_zone
   associate_public_ip_address = true
 
   tags = {
@@ -15,7 +15,7 @@ resource "aws_instance" "web_test" {
   }
   provisioner "remote-exec" {
     inline = [ 
-      "DD_API_KEY=${var.datadog_api_key} bash -c \"$(curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script.sh)\""
+      "DD_API_KEY=${variable.datadog_api_key} bash -c \"$(curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script.sh)\""
       
       ]
   }
