@@ -1,0 +1,1 @@
+external_account_arn = "arn:aws:iam::093157296769:root"

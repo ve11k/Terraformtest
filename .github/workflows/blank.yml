@@ -1,0 +1,105 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Terraform Plan & Apply
+
+on:
+  workflow_dispatch:
+
+jobs:
+  terraform-plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      
+
+      - name: Generate SSH Key test_key and private_key
+        run: |
+          
+          mkdir -p keys
+          ssh-keygen -t rsa -b 4096 -m PEM -f test_key -N ""
+          ssh-keygen -t rsa -b 4096 -m PEM -f private_key -N ""
+        
+      - name: Export key
+        run: |
+          echo "TF_VAR_private_key_pem<<EOF" >> $GITHUB_ENV
+          cat private_key >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+          echo "TF_VAR_test_key_pem<<EOF" >> $GITHUB_ENV
+          cat test_key >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Read public key and pass as var
+        run: |
+          echo "TF_VAR_private_public_key<<EOF" >> $GITHUB_ENV
+          cat private_key.pub >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          
+          echo "TF_VAR_test_public_key<<EOF" >> $GITHUB_ENV
+          cat test_key.pub >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+         
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      - name: Check that tfplan exists
+        run: ls -la tfplan
+
+      - name: Upload Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: tfplan
+
+  wait-for-approval:
+      name: Manual Approval
+      needs: terraform-plan
+      runs-on: ubuntu-latest
+      steps:
+        - name: Just pass after approval
+          run: echo "Approved ✅"  # блокування до ручного схвалення
+      environment:
+        name: production
+        url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+  terraform-apply:
+    name: Terraform Apply
+    needs: wait-for-approval
+    runs-on: ubuntu-latest
+    env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Terraform init
+        run: terraform init
+#
+      - name: Download Plan
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan
+
+      - name: Terraform Apply
+        run: |
+            
+            terraform apply tfplan
+      
+      - name: Cleanup SSH key
+        run: rm -f test_key test_key.pub private_key private_key.pub
+  
+  
