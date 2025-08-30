@@ -13,3 +13,6 @@ keys
 .terraform.lock.hcl
 
 
+
+terraform.tfvars
+keys
