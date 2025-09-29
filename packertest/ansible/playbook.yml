@@ -1,0 +1,4 @@
+   - hosts: all
+     become: true
+     roles:
+        - devsec.hardening.os_hardening
