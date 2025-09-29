@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nginxchart.fullname" . }}
+  labels:
+    app: {{ include "nginxchart.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "nginxchart.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "nginxchart.name" . }}
+    spec:
+      containers:
+        - name: nginxchart
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 80

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "nginxchart.fullname" . }}
+  labels:
+    app: {{ include "nginxchart.name" . }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app: {{ include "nginxchart.name" . }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 80
+      nodePort: {{ .Values.service.nodePort }}
